@@ -1,0 +1,83 @@
+version: "3.8"
+
+networks:
+  mern-networks:
+    driver: bridge
+
+# Usar para que los datos alojen dentro del contenedor y no en la carpeta local
+# volumes:
+#   mongodb_data:
+
+services:
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react-app
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - mern-networks
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: node-api
+    ports:
+      - "4000:4000"
+    command: npm start 
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - database
+    networks:
+      - mern-networks
+
+  database:
+    image: mongo
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"  
+    # Enable to allow access to root database
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      # - mongodb_data:/data/db Usar para alojar los datos en el contenedor y no en la carpeta local
+      - ./docker/mongodb:/data/db
+      - ./docker/mongodb:/data/configdb
+      - ./backend/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo-js:ro # Create an authenticated user to use the database
+    networks:
+      - mern-networks
+
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: root
+  #     ME_CONFIG_MONGODB_ENABLE_ADMIN: true
+  #     ME_CONFIG_MONGODB_PORT: 27017
+  #     ME_CONFIG_MONGODB_SERVER: database
+  #     # ME_CONFIG_MONGODB_URL:  mongodb://root:root@database:27017?authSource=admin
+  #     ME_CONFIG_BASICAUTH_USERNAME: mexpress
+  #     ME_CONFIG_BASICAUTH_PASSWORD: mexpress
+  #   depends_on:
+  #     - database
+  #   networks:
+  #     - mern-networks
