@@ -7,7 +7,10 @@ import corsConfig from "./app/config/cors.mjs";
 import { connectToDB } from "./app/config/database.mjs";
 
 // Connect to database
-await connectToDB();
+// If true, use memory database
+if (process.env.APP_IS_TESTING === false) {
+    await connectToDB();
+}
 
 // Create app
 const app = express();
@@ -18,5 +21,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(webRoutes);
-app.listen(process.env.APP_PORT, () => console.log(`Running on ${process.env.APP_URL}`));
 
+const server = app.listen(process.env.APP_PORT, () => {
+    if (process.env.APP_IS_TESTING === false) {
+        console.log(`Running on ${process.env.APP_URL}`);
+    }
+});
+
+export {
+    app,
+    server
+};
