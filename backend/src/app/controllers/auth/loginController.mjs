@@ -1,4 +1,4 @@
-import { createUser } from "../../services/userService.mjs";
+import { signupUser } from "../../services/authService.mjs";
 import ResponseService from "../../utils/ResponseService.mjs";
 import mapValidationErrors from "../../utils/mapValidationErrors.mjs";
 
@@ -6,7 +6,7 @@ export const signup = async (req, res) => {
     const response = new ResponseService(res);
     
     try {
-        const user = await createUser(req.body)
+        const user = await signupUser(req.body)
         response.created('User', {user: user})
     } catch (error) {
         if (error.name === 'ValidationError') {
