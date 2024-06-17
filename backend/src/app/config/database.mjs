@@ -19,7 +19,11 @@ export const config = {
     },
 }
 
-
 export async function connectToDB() {
+    if (process.env.APP_IS_TESTING === true) {
+        // Use memory database
+        return ;
+    }
+
     return await config.mongodb.openConnection();
 }
