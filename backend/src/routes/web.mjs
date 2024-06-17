@@ -1,24 +1,8 @@
 import { Router } from 'express';
-import Task from "../models/Task.mjs";
+import { login } from '../app/controllers/auth/loginController.mjs';
 
 const router = new Router();
 
-router.get("/tasks", async (req, res) => {
-  const tasks = await Task.find();
-  res.json(tasks);
-});
-
-router.post("/tasks", async (req, res) => {
-  const newtask = new Task({
-    text: req.body.text,
-  });
-  const savedTask = await newtask.save();
-  res.json(savedTask);
-});
-
-router.delete("/tasks/:id", async (req, res) => {
-  await Task.findByIdAndDelete(req.params.id);
-  res.end();
-});
+router.post('/login', login);
 
 export default router;
