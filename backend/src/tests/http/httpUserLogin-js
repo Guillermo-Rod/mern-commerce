@@ -1,0 +1,44 @@
+import request from "supertest";
+import { app } from "../../server.mjs";
+import { signupUser, loginUser } from "../../app/services/authService.mjs";
+import ResponseService from "../../app/utils/ResponseService.mjs";
+
+const userData = {
+    name: 'login', 
+    last_name: 'last_name',
+    email: 'http-login@gmail.com',
+    password: 'secret'
+};
+
+var mongoTempServer;
+
+beforeAll(async () => {
+    // it is now
+    mongoTempServer = await MongoMemoryServer.create();
+    const uri = mongoTempServer.getUri();
+    await mongoose.connect(uri);
+    await signupUser(userData);
+});
+
+afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoTempServer.stop();
+    await server.close();
+});
+
+describe('POST / signup (pass cases)', () => {
+    it('should respond with 200 OK if user was successfully authenticated', async () => {
+        const response = await request(app).post('/login').send({email: userData.email, password: userData.password});
+        expect(response.statusCode).toBe(ResponseService.OK_CODE);
+        expect(response.body).toHaveProperty('data');
+        expect(response.body).toHaveProperty('message', "User authenticated successfully!");
+        expect(response.body.data).toHaveProperty('token');
+
+        console.log(response.body);
+    });
+})
+
+describe('POST / signup (fail cases)', () => {
+   
+})
+
