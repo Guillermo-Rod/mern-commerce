@@ -1,4 +1,5 @@
 import CommandNotFoundError from "../app/exceptions/CommandNotFoundError.mjs";
+import * as generateAppKeyCommand from "./generateAppKey.mjs"; 
 
 /**
  * How to find options
@@ -26,7 +27,9 @@ const RESERVED_OPTIONS = {
 /**
  * Available commands
  */
-const COMMANDS = [];
+const COMMANDS = [
+    generateAppKeyCommand,
+];
 
 /**
  * Prompt command and options
