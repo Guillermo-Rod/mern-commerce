@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import AuthValidationError from "../app/exceptions/AuthValidationError.mjs";
 import ModelNotFoundError from "../app/exceptions/ModelNotFoundError.mjs";
-import { login, signupUser } from "../app/services/authService.mjs";
+import { loginUser, signupUser } from "../app/services/authService.mjs";
 import { connectToMemoryDB, disconnectMemoryDB } from "./mongoMemoryServerInitConfig.mjs";
 
 const userData = {
@@ -23,7 +23,7 @@ describe('Login | Auth Service (fail cases)', () => {
 
     it('should require email, password', async () => {
         try {
-            await login();
+            await loginUser();
             fail('Expected login to throw AuthValidationError');
         } catch (error) {
             expect(error).toBeInstanceOf(AuthValidationError);
@@ -35,7 +35,7 @@ describe('Login | Auth Service (fail cases)', () => {
 
     it('should validate email format', async () => {
         try {
-            await login('not-valid', 'secret');
+            await loginUser('not-valid', 'secret');
             fail('Expected login to throw AuthValidationError');
         } catch (error) {
             expect(error).toBeInstanceOf(AuthValidationError);
@@ -46,7 +46,7 @@ describe('Login | Auth Service (fail cases)', () => {
 
     it('should throws an exception if user not found', async () => {
         try {
-            await login('demoemail@gmail.com', 'secret');
+            await loginUser('demoemail@gmail.com', 'secret');
             fail('Expected login to throw ModelNotFoundError');
         } catch (error) {
             expect(error).toBeInstanceOf(ModelNotFoundError);
@@ -56,7 +56,7 @@ describe('Login | Auth Service (fail cases)', () => {
 
     it('should throws an exception if password is incorrect', async () => {
         try {
-            await login(userData.email, 'wrongpassword');
+            await loginUser(userData.email, 'wrongpassword');
             fail('Expected login to throw AuthValidationError');
         } catch (error) {
             expect(error).toBeInstanceOf(AuthValidationError);
@@ -68,7 +68,7 @@ describe('Login | Auth Service (fail cases)', () => {
 
 describe('Login | Auth Service (pass cases)', () => {
     it('should authenticate user, successfully', async () => {
-       const jwToken = await login(userData.email, userData.password);
+       const jwToken = await loginUser(userData.email, userData.password);
        
        // Validate that jwToken is a non-null string
        expect(typeof jwToken).toBe('string');
