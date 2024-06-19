@@ -1,11 +1,11 @@
-class ModelAlreadyExists extends Error {
+class ModelAlreadyExistsError extends Error {
     constructor(model) {
         super();
-        this.name = "ModelAlreadyExists";
+        this.name = "ModelAlreadyExistsError";
         this.statusCode = 400;
         this.responseType = "json";
         this.message = `${model} already exists`;
     }
 }
 
-export default ModelAlreadyExists;
+export default ModelAlreadyExistsError;

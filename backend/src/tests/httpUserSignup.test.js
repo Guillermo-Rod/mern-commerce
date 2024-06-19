@@ -46,7 +46,7 @@ describe('POST / signup (fail cases)', () => {
     it('should respond with 409 Conflict when an incoming user email exists', async () => {
         const response = await request(app).post('/signup').send(user);
         expect(response.statusCode).toBe(409);
-        expect(response.body).toHaveProperty('data.exception_name', 'ModelAlreadyExists');
+        expect(response.body).toHaveProperty('data.exception_name', 'ModelAlreadyExistsError');
     });
 })
 

@@ -15,10 +15,14 @@ export const signup = async (req, res) => {
                 error: error.message, 
                 errors: mapValidationErrors(error.errors),
             });
-        }else if (error.name === 'ModelAlreadyExists') {
+        }else if (error.name === 'ModelAlreadyExistsError') {
             response.conflict(error.message, {exception_name: error.name});
         }else {
             response.internalServerError(error.message);
         }
     }
+}
+
+export const login = (req, res) => {
+
 }

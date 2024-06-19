@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import AuthValidationError from "../exceptions/AuthValidationError.mjs";
-import ModelAlreadyExists from "../exceptions/ModelAlreadyExistsException.mjs";
+import ModelAlreadyExistsError from "../exceptions/ModelAlreadyExistsError.mjs";
 import ModelNotFoundError from "../exceptions/ModelNotFoundError.mjs";
 import User from "../models/User.mjs";
 import isEmail from 'validator/lib/isEmail';
@@ -18,7 +18,7 @@ export async function signupUser ({name, last_name, phone, email, password}) {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-        throw new ModelAlreadyExists('User');
+        throw new ModelAlreadyExistsError('User');
     }
 
     const user = new User({name, last_name, phone, email, password});
