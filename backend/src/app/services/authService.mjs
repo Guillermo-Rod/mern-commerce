@@ -28,7 +28,7 @@ export async function signupUser ({name, last_name, phone, email, password}) {
     return user;
 }
 
-export async function login (email, password) {
+export async function loginUser (email, password) {
     
     if (! email || ! password) throw AuthValidationError.missingRequiredParameters('email', 'password');
     if (! isEmail(email)) throw AuthValidationError.invalidParameterFormat('email', email); 
