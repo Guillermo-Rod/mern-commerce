@@ -1,4 +1,4 @@
-import { signupUser } from "../../services/authService.mjs";
+import { signupUser, loginUser } from "../../services/authService.mjs";
 import ResponseService from "../../utils/ResponseService.mjs";
 import mapValidationErrors from "../../utils/mapValidationErrors.mjs";
 
@@ -23,6 +23,26 @@ export const signup = async (req, res) => {
     }
 }
 
-export const login = (req, res) => {
+export const login = async (req, res) => {
+    const response = new ResponseService(res);
+    
+    const { email, password } = req.body;
 
+    try {
+        const token = await loginUser(email, password);
+        response.ok('User authenticated successfully!', {
+            token: token
+        });
+    } catch (error) {
+        if (error.name === 'ModelNotFoundError') {
+            response.notFound('User');
+        }else if (error.name === 'AuthValidationError') {
+            response.badRequest('Validation error', {
+                exception_name: error.name,
+                error: error.message
+            })
+        }else {
+            response.internalServerError(error.message);
+        }
+    }
 }
