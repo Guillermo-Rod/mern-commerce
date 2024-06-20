@@ -68,16 +68,20 @@ describe('Login | Auth Service (fail cases)', () => {
 
 describe('Login | Auth Service (pass cases)', () => {
     it('should authenticate user, successfully', async () => {
-       const jwToken = await loginUser(userData.email, userData.password);
+       const tokens = await loginUser(userData.email, userData.password);
        
-       // Validate that jwToken is a non-null string
-       expect(typeof jwToken).toBe('string');
-       expect(jwToken).not.toBeNull();
-       expect(jwToken).not.toBeUndefined();
+       // Validate that tokens is a non-null string
+       expect(typeof tokens).toBe('object');
+       expect(tokens).toHaveProperty('token');
+       expect(tokens).toHaveProperty('refresh_token');
+       expect(tokens.token).toBeDefined();
+       expect(tokens.refresh_token).toBeDefined();
 
        try {
-           const decoded = jwt.verify(jwToken, process.env.APP_KEY);
-           expect(decoded).toBeDefined(); 
+           const authToken = jwt.verify(tokens.token, process.env.APP_KEY);
+           const refreshToken = jwt.verify(tokens.refresh_token, process.env.APP_REFRESH_KEY);
+           expect(authToken).toBeDefined(); 
+           expect(refreshToken).toBeDefined(); 
        } catch (error) {
            expect(error).not.toBeInstanceOf(jwt.JsonWebTokenError);
        }

@@ -40,19 +40,23 @@ export async function loginUser (email, password) {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (! isMatch) throw AuthValidationError.wrongPassword();
+    
+    // Build token
+    const getNewToken = (user, secretKey, expiresIn) => {
+        return jwt.sign(
+            { 
+                id: user._id, 
+                email: user.email,
+                iss: process.env.APP_URL,
+                iat: Math.floor(Date.now() / 1000),
+            }, 
+            secretKey, 
+            {expiresIn}
+        );
+    }
 
-    // Make Auth Token
-    const token = jwt.sign(
-                        { 
-                            id: user._id, 
-                            email: user.email,
-                            iss: process.env.APP.APP_URL,
-                            iat: Math.floor(Date.now() / 1000),
-                            exp: '1h',
-                        }, 
-                        process.env.APP_KEY, 
-                        {expiresIn: '1h'}
-                    );
-
-    return token;
+    return {
+        token : getNewToken(user, process.env.APP_KEY, '15m'),
+        refresh_token: getNewToken(user, process.env.APP_REFRESH_KEY, '1h')
+    };
 }
