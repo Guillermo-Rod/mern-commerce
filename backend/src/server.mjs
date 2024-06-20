@@ -8,7 +8,7 @@ import { connectToDB } from "./app/config/database.mjs";
 
 // Connect to database
 // If true, use memory database
-if (process.env.APP_IS_TESTING === false) {
+if (process.env.APP_IS_TESTING === 'false') {
     await connectToDB();
 }
 
@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 app.use(webRoutes);
 
 const server = app.listen(process.env.APP_PORT, () => {
-    if (process.env.APP_IS_TESTING === false) {
+    if (process.env.APP_IS_TESTING === 'false') {
         console.log(`Running on ${process.env.APP_URL}`);
     }
 });
