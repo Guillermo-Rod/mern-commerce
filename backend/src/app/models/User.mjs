@@ -42,8 +42,7 @@ const userSchema = new mongoose.Schema({
   }
 }, 
   {
-    // createdAt, updatedAt
-    timestamps: true,
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
     methods: {
       // Hide password when call "toJSON"
       toJSON() {
