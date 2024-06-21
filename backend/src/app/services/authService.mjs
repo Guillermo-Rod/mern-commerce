@@ -43,11 +43,6 @@ export async function loginUser (email, password) {
     
     const signature = {user_id: user._id, user_email: user.email};
 
-    const tokens = {
-        token : newJWToken(signature, authConfig.token.secret_key, authConfig.token.expires_in),
-        refresh_token: newJWToken(signature, authConfig.refresh_token.secret_key, authConfig.refresh_token.expires_in)
-    };
-
     // Creates a new refresh model in the database
     const newRefreshModel = new RefreshToken({
         user_id: user._id,
@@ -56,8 +51,11 @@ export async function loginUser (email, password) {
 
     await newRefreshModel.save();
 
-    // Returns the tokens
-    return tokens;
+    return {
+        user_id: signature.user_id,
+        token : newJWToken(signature, authConfig.token.secret_key, authConfig.token.expires_in),
+        refresh_token: newJWToken(signature, authConfig.refresh_token.secret_key, authConfig.refresh_token.expires_in)
+    };
 }
 
 /**
@@ -101,6 +99,7 @@ export async function refreshUserTokens(refreshToken) {
 
     // Return the tokens
     return {
+        user_id: signature.user_id,
         token: newJWToken(signature, authConfig.token.secret_key, authConfig.token.expires_in),
         refresh_token: refreshToken,
         refresh_token_was_renewed: refreshTokenRequiresRenew

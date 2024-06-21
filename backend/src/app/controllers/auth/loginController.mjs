@@ -29,8 +29,8 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const {token, refresh_token} = await loginUser(email, password);
-        response.ok('User authenticated successfully!', {token, refresh_token});
+        const {token, refresh_token, user_id} = await loginUser(email, password);
+        response.ok('User authenticated successfully!', {user_id, token, refresh_token});
     } catch (error) {
         if (error.name === 'ModelNotFoundError') {
             response.notFound('User');
@@ -49,10 +49,10 @@ export const refreshAuthToken = async(req, res) => {
     const response = new ResponseService(res);
     
     try {
-        const {token, refresh_token, refresh_token_was_renewed} = await refreshUserTokens(req.body.refresh_token);
+        const {user_id, token, refresh_token, refresh_token_was_renewed} = await refreshUserTokens(req.body.refresh_token);
         const message = refresh_token_was_renewed ? 'Token and Refresh Token were renewed!' : 'Token was renewed!'; 
 
-        response.ok(message, {token, refresh_token});
+        response.ok(message, {user_id, token, refresh_token});
     } catch (error) {
         if (error.name === 'AuthValidationError') {
             response.badRequest('Validation error', {
