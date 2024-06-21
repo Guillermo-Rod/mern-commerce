@@ -14,14 +14,19 @@ export function newJWToken({user_id, user_email}, secretKey, expiresIn) {
     );
 }
 
+export function jWTokenWasExpired (tokenSignature) {
+    // Get the expiration time in seconds since unix time
+    const expirationTimestamp = tokenSignature.exp;
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
+    return expirationTimestamp >= currentTimeInSeconds;
+}
+
 export function jWTokenRequiresRenew(tokenSignature, refreshThreshold) {
     // Get the expiration time in seconds since unix time
     const expirationTimestamp = tokenSignature.exp;
     const currentTimeInSeconds = Math.floor(Date.now() / 1000); 
-    // Compare expiration time with the currentTime 
     const timeRemaining = expirationTimestamp - currentTimeInSeconds; 
     
-    // Argument "refreshThreshold"
-    // is the time umbral to determine if the token needs to be renew 
     return timeRemaining < refreshThreshold;
 }
