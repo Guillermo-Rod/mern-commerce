@@ -5,6 +5,7 @@ import webRoutes from "./routes/web.mjs";
 import cors from "cors";
 import corsConfig from "./app/config/cors.mjs";
 import { connectToDB } from "./app/config/database.mjs";
+import { getMiddlewares } from './app/config/middlewares.mjs';
 
 // Connect to database
 // If true, use memory database
@@ -20,6 +21,7 @@ app.use(cors(corsConfig));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+app.use(...getMiddlewares())
 app.use(webRoutes);
 
 const server = app.listen(process.env.APP_PORT, () => {
