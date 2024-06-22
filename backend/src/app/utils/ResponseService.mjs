@@ -24,83 +24,78 @@ class ResponseService {
     // Action was successfully executed
     ok (message = 'OK', data) {
         const statusCode = ResponseService.OK_CODE;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'ok'}));
     }
 
     // 201 Resource Created
     // Action was successfully executed and resource was created
-    created(model, data) {
+    created(resource, data) {
         const statusCode = ResponseService.RESOURCE_CREATED_CODE;
-        const message = `${model} registered successfully`;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        const message = `${resource} registered successfully`;
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'created'}));
     }
 
     // 204 No Content
     // Action was successfully executed but not exists content to return
     noContent() {
-        this.response.status(ResponseService.NO_CONTENT_CODE).send({});
+        this.response.status(ResponseService.NO_CONTENT_CODE).send();
     }
 
     // 304 Not Modified
     // The info has not been changed since the latest request
     notModified() {
-        this.response.status(ResponseService.NOT_MODIFIED_CODE).send({}); 
+        this.response.status(ResponseService.NOT_MODIFIED_CODE).send(); 
     }
 
     // 400 Bad Request
     // The request is not valid or is malformed
-    badRequest(reason, data) {
+    badRequest(message = 'Bad Request!', data) {
         const statusCode = ResponseService.BAD_REQUEST_CODE;
-        const message = `Bad Request : ${reason}`;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'bad_request'}));
     }
 
     // 401 Unauthorized
     // User not authenticated
     unauthorized(data) {
         const statusCode = ResponseService.UNAUTHORIZED_CODE;
-        const message = 'Authentication is required';
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        const message = 'Authentication is required!';
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'unauthorized'}));
     }
 
     // 403 Forbidden
     // User authenticated but without permissions
     forbidden(data) {
         const statusCode = ResponseService.FORBIDDEN_CODE;
-        const message = 'User authenticated but without permissions';
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        const message = 'User authenticated but without permissions!';
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'forbidden'}));
     }
 
     // 404 Not Found
     // The requested resource not found
-    notFound(resource, data) {
+    notFound(message = 'Resource Not Found!', data) {
         const statusCode = ResponseService.NOT_FOUND_CODE;
-        const message = `Not Found : ${resource}`;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'not_found'}));
     }
 
     // 409 Conflict
     // The request was not completed because there are an conflict with his current state 
-    conflict(reason, data) {
+    conflict(message = 'Conflict!', data) {
         const statusCode = ResponseService.CONFLICT_CODE;
-        const message = `Conflict : ${reason}`;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'conflict'}));
     }
 
     // 500 Server error
     // Code error, server error
-    internalServerError(reason, data) {
+    internalServerError(message = 'Server Error!', data) {
         const statusCode = ResponseService.INTERNAL_ERROR_CODE;
-        const message = `Server error : ${reason}`;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'internal_server_error'}));
     }
 
     // 503 Service Unavailable
     // The server is not available to handle the request
-    serviceUnavailable(reason, data) {
+    serviceUnavailable(message = 'Service Unavailable', data) {
         const statusCode = ResponseService.SERVICE_UNAVAILABLE_CODE;
-        const message = `Service Unavailable : ${reason}`;
-        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode}));
+        this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'service_unavailable'}));
     }
 }
  
