@@ -15,6 +15,10 @@ class ResponseService {
         this.response = response;
     }
 
+    static newInstance(res) {
+        return new ResponseService(res);
+    }
+
     addToJson(data, json) {
         if (data !== undefined) json.data = data;
         return json;
