@@ -1,3 +1,5 @@
+import RefreshToken from "../models/RefreshToken.mjs";
+
 export async function createRefreshToken(userId, token) {
     const newRefreshModel = new RefreshToken({
         user_id: userId,
