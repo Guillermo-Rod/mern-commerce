@@ -10,8 +10,6 @@ class AuthValidationError extends Error {
         this.message = message;
         this.parameters = parameters;
         this.constructor_reference = constructorReference || AuthValidationError.AUTH_VALIDATION_ERROR;
-
-        console.log(this);
     }
     
     static wrongPassword() {
