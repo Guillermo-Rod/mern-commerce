@@ -1,69 +1,45 @@
+import ErrorHandler from "../../errors/ErrorHandler.mjs";
 import { signupUser, loginUser, refreshUserTokens } from "../../services/authService.mjs";
 import ResponseService from "../../utils/ResponseService.mjs";
 import mapValidationErrors from "../../utils/mapValidationErrors.mjs";
 
-export const signup = async (req, res) => {
-    const response = new ResponseService(res);
-    
+export const signup = async (req, res, next) => {    
     try {
-        const user = await signupUser(req.body)
-        response.created('User', {user: user})
+        const user = await signupUser(req.body);
+
+        return ResponseService
+                .newInstance(res)
+                .created('user', {user});
+    
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            response.badRequest('Validation error', {
-                exception_name: error.name,
-                error: error.message, 
-                errors: mapValidationErrors(error.errors),
-            });
-        }else if (error.name === 'ModelAlreadyExistsError') {
-            response.conflict(error.message, {exception_name: error.name});
-        }else {
-            response.internalServerError(error.message);
-        }
+        next(error);
     }
 }
 
-export const login = async (req, res) => {
-    const response = new ResponseService(res);
-    
-    const { email, password } = req.body;
-
+export const login = async (req, res, next) => {
     try {
-        const {token, refresh_token, user_id} = await loginUser(email, password);
-        response.ok('User authenticated successfully!', {user_id, token, refresh_token});
+        const { email, password } = req.body;
+        const payload = await loginUser(email, password);
+
+        return ResponseService
+                .newInstance(res)
+                .ok('User authenticated successfully!', payload);
+
     } catch (error) {
-        if (error.name === 'ModelNotFoundError') {
-            response.notFound('User');
-        }else if (error.name === 'AuthValidationError') {
-            response.badRequest('Validation error', {
-                exception_name: error.name,
-                error: error.message
-            })
-        }else {
-            response.internalServerError(error.message);
-        }
+        next(error);
     }
 }
 
-export const refreshAuthToken = async(req, res) => {
-    const response = new ResponseService(res);
-    
+export const refreshAuthToken = async(req, res, next) => {
     try {
-        const {user_id, token, refresh_token, refresh_token_was_renewed} = await refreshUserTokens(req.body.refresh_token);
-        const message = refresh_token_was_renewed ? 'Token and Refresh Token were renewed!' : 'Token was renewed!'; 
+        const payload = await refreshUserTokens(req.body.refresh_token);
+        const message = payload.refresh_token_was_renewed ? 'Token and Refresh Token were renewed!' : 'Token was renewed!'; 
 
-        response.ok(message, {user_id, token, refresh_token});
+        return ResponseService
+                .newInstance(res)
+                .ok(message, payload);
+
     } catch (error) {
-        if (error.name === 'AuthValidationError') {
-            response.badRequest('Validation error', {
-                exception_name: error.name,
-                error: error.message,
-                requiredParameters: error.requiredParameters
-            });
-        }else if (error.name === 'ModelNotFoundError') {
-            response.notFound('RefreshToken');
-        }else {
-            response.internalServerError(error.message);
-        }    
+        next(error);
     }
 }
