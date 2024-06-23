@@ -1,16 +1,34 @@
 import 'dotenv/config';
 import jwt from "jsonwebtoken";
+import authConfig from '../config/auth.mjs';
 
-export function newJWToken({user_id, user_email}, secretKey, expiresIn) {
+export function newJWToken(userId, userEmail) {
     return jwt.sign(
         { 
-            user_id, 
-            user_email,
+            user_id: userId, 
+            user_email: userEmail,
             iss: process.env.APP_URL,
             iat: Math.floor(Date.now() / 1000),
         }, 
-        secretKey, 
-        {expiresIn}
+        authConfig.token.secret_key, 
+        {
+            expiresIn: authConfig.token.expires_in
+        }
+    );
+}
+
+export function newJWTRefreshToken(userId, userEmail) {
+    return jwt.sign(
+        { 
+            user_id: userId, 
+            user_email: userEmail,
+            iss: process.env.APP_URL,
+            iat: Math.floor(Date.now() / 1000),
+        }, 
+        authConfig.refresh_token.secret_key, 
+        {
+            expiresIn: authConfig.refresh_token.expires_in 
+        }
     );
 }
 
