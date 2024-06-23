@@ -70,7 +70,7 @@ class ResponseService {
     // User authenticated but without permissions
     forbidden(data) {
         const statusCode = ResponseService.FORBIDDEN_CODE;
-        const message = 'User authenticated but without permissions!';
+        const message = 'Access Denied!';
         this.response.status(statusCode).json(this.addToJson(data, {message, statusCode, primitive: 'forbidden'}));
     }
 
