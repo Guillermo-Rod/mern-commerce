@@ -1,13 +1,15 @@
-import AuthValidationError from "../exceptions/AuthValidationError.mjs";
-import ModelAlreadyExistsError from "../exceptions/ModelAlreadyExistsError.mjs";
-import ModelNotFoundError from "../exceptions/ModelNotFoundError.mjs";
+import AuthValidationError from "../errors/AuthValidationError.mjs";
+import ModelAlreadyExistsError from "../errors/ModelAlreadyExistsError.mjs";
+import ResourceNotFoundError from "../errors/ResourceNotFoundError.mjs";
 import User from "../models/User.mjs";
 import RefreshToken from "../models/RefreshToken.mjs";
 import validator from 'validator';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { jWTokenRequiresRenew, newJWToken } from "../utils/jwtHelpers.mjs";
+import { jWTokenRequiresRenew, newJWToken, newJWTRefreshToken } from "../utils/jwtHelpers.mjs";
 import authConfig from '../config/auth.mjs';
+import ParametersError from "../errors/ParametersError.mjs";
+import { createRefreshToken } from "../services/refreshTokenService.mjs";
 
 /**
  * Store User in Database
@@ -31,78 +33,69 @@ export async function signupUser ({name, last_name, phone, email, password}) {
 }
 
 export async function loginUser (email, password) {
-    
-    if (! email || ! password) throw AuthValidationError.missingRequiredParameters('email', 'password');
-    if (! validator.isEmail(email)) throw AuthValidationError.invalidParameterFormat('email', email); 
+    if (! email || ! password) throw ParametersError.missingRequired('email', 'password');
+    if (! validator.isEmail(email)) throw ParametersError.invalidFormat('email'); 
     
     const user = await User.findOne({ email });
-    if (! user) throw new ModelNotFoundError('User');
+    if (! user) throw new ResourceNotFoundError('User');
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (! isMatch) throw AuthValidationError.wrongPassword();
-    
-    const signature = {user_id: user._id, user_email: user.email};
 
-    // Creates a new refresh model in the database
-    const newRefreshModel = new RefreshToken({
+    const authPayload = {
         user_id: user._id,
-        token: tokens.refresh_token
-    });
-
-    await newRefreshModel.save();
-
-    return {
-        user_id: signature.user_id,
-        token : newJWToken(signature, authConfig.token.secret_key, authConfig.token.expires_in),
-        refresh_token: newJWToken(signature, authConfig.refresh_token.secret_key, authConfig.refresh_token.expires_in)
+        token : newJWToken(user._id, user.email),
+        refresh_token: newJWTRefreshToken(user._id, user.email),
+        token_expires_in: authConfig.token.expires_in,
+        refresh_token_expires_in: authConfig.refresh_token.expires_in,
     };
+
+    await createRefreshToken(user._id, authPayload.refresh_token);
+
+    return authPayload;
 }
 
 /**
  * 
  * @param {*} refreshToken
- * @throws AuthValidationError | ModelNotFoundError | JsonWebTokenError
+ * @throws AuthValidationError | ResourceNotFoundError | JsonWebTokenError
  * @returns 
  */
 export async function refreshUserTokens(refreshToken) {
-    if (! refreshToken) throw AuthValidationError.missingRequiredParameters('refresh_token');
-
-    // Evaluates the refresh token format
-    // If fails throws an JsonWebTokenError
-    try {
-        var refreshTokenSignature = jwt.verify(refreshToken, authConfig.refresh_token.secret_key);    
-    } catch (error) {
-        if (error.name === 'JsonWebTokenError') throw AuthValidationError.invalidParameterFormat('refresh_token');
-        throw error;
-    }
+    var refreshTokenSignature = jwt.verify(refreshToken, authConfig.refresh_token.secret_key);
 
     // Try to find in database
     const existingFreshToken = await RefreshToken.findOne({token: refreshToken});
-    if (! existingFreshToken) throw new ModelNotFoundError('RefreshToken');
+    if (! existingFreshToken) throw new ResourceNotFoundError('RefreshToken');
     
-    // On success verification build the signature 
-    const signature = {user_id: refreshTokenSignature.user_id, user_email: refreshTokenSignature.user_email};
+    const userInformation = {
+        user_id: refreshTokenSignature.user_id, 
+        user_email: refreshTokenSignature.user_email
+    };
+
     const refreshTokenRequiresRenew = jWTokenRequiresRenew(refreshTokenSignature, authConfig.refresh_token.refresh_threshold);
 
     // Evaluates if the actual refreshToken needs to be renewed
     if (refreshTokenRequiresRenew) {
         // Overwrite refresh token value
-        refreshToken = newJWToken(signature, authConfig.refresh_token.secret_key, authConfig.refresh_token.expires_in);
-        
-        // Creates a new refresh model in the database
-        const newRefreshModel = new RefreshToken({
-            user_id: refreshTokenSignature.user_id,
-            token: refreshToken
-        });
-        await newRefreshModel.save();
+        refreshToken = newJWTRefreshToken(userInformation.user_id, userInformation.user_email);
+
+        await createRefreshToken(refreshTokenSignature.user_id, refreshToken);
     }
 
-    // Return the tokens
-    return {
+    const authPayload = {
         user_id: signature.user_id,
-        token: newJWToken(signature, authConfig.token.secret_key, authConfig.token.expires_in),
+        token: newJWToken(userInformation.user_id, userInformation.user_email),
         refresh_token: refreshToken,
-        refresh_token_was_renewed: refreshTokenRequiresRenew
+        refresh_token_was_renewed: refreshTokenRequiresRenew,
+        token_expires_in: authConfig.token.expires_in,
     };
+
+    // Add the expires_in of refresh_token
+    if (authPayload.refresh_token_was_renewed) {
+        authPayload.refresh_token_expires_in = authConfig.refresh_token.expires_in;
+    }
+
+    return authPayload;
 }
   
