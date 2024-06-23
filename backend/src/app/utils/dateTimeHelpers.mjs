@@ -1,6 +1,6 @@
 export function timeToSeconds(timeString) {
-    const unit = time.slice(-1);
-    const value = parseInt(time.slice(0, -1));
+    const unit = timeString.slice(-1);
+    const value = parseInt(timeString.slice(0, -1));
 
     switch (unit) {
         case 's': return value;
