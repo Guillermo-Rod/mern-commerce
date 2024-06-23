@@ -6,6 +6,7 @@ import cors from "cors";
 import corsConfig from "./app/config/cors.mjs";
 import { connectToDB } from "./app/config/database.mjs";
 import { getMiddlewares } from './app/config/middlewares.mjs';
+import ErrorHandler from './app/errors/ErrorHandler.mjs';
 
 // Connect to database
 // If true, use memory database
@@ -23,6 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(...getMiddlewares())
 app.use(webRoutes);
+
+
+// Middleware to handle errors
+app.use(ErrorHandler.handleAsMiddleware);
 
 const server = app.listen(process.env.APP_PORT, () => {
     if (process.env.APP_IS_TESTING === 'false') {
