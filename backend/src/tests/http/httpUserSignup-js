@@ -40,13 +40,13 @@ describe('POST / signup (fail cases)', () => {
     it('should respond with 400 Bad Request when user model validation fails', async () => {
         const response = await request(app).post('/signup').send({name: 'Demo'});
         expect(response.statusCode).toBe(400);
-        expect(response.body).toHaveProperty('data.exception_name', 'ValidationError');
+        expect(response.body).toHaveProperty('data.error_name', 'ValidationError');
     });
 
     it('should respond with 409 Conflict when an incoming user email exists', async () => {
         const response = await request(app).post('/signup').send(user);
         expect(response.statusCode).toBe(409);
-        expect(response.body).toHaveProperty('data.exception_name', 'ModelAlreadyExistsError');
+        expect(response.body).toHaveProperty('data.error_name', 'ModelAlreadyExistsError');
     });
 })
 

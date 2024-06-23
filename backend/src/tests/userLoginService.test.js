@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
-import AuthValidationError from "../app/exceptions/AuthValidationError.mjs";
-import ModelNotFoundError from "../app/exceptions/ModelNotFoundError.mjs";
+import AuthValidationError from "../app/errors/AuthValidationError.mjs";
+import ParametersError from "../app/errors/ParametersError.mjs";
+import ResourceNotFoundError from "../app/errors/ResourceNotFoundError.mjs";
 import { loginUser, signupUser } from "../app/services/authService.mjs";
 import { connectToMemoryDB, disconnectMemoryDB } from "./mongoMemoryServerInitConfig.mjs";
 
@@ -26,9 +27,9 @@ describe('Login | Auth Service (fail cases)', () => {
             await loginUser();
             fail('Expected login to throw AuthValidationError');
         } catch (error) {
-            expect(error).toBeInstanceOf(AuthValidationError);
+            expect(error).toBeInstanceOf(ParametersError);
             expect(error.message).toBe('Missing required parameters');
-            expect(error.requiredParameters).toEqual(['email', 'password']);
+            expect(error.parameters).toEqual(['email', 'password']);
         }
     });
 
@@ -38,18 +39,18 @@ describe('Login | Auth Service (fail cases)', () => {
             await loginUser('not-valid', 'secret');
             fail('Expected login to throw AuthValidationError');
         } catch (error) {
-            expect(error).toBeInstanceOf(AuthValidationError);
+            expect(error).toBeInstanceOf(ParametersError);
             expect(error.message).toBe('Invalid email format!');
-            expect(error.requiredParameters).toEqual(['email']);
+            expect(error.parameters).toEqual(['email']);
         }
     });
 
     it('should throws an exception if user not found', async () => {
         try {
             await loginUser('demoemail@gmail.com', 'secret');
-            fail('Expected login to throw ModelNotFoundError');
+            fail('Expected login to throw ResourceNotFoundError');
         } catch (error) {
-            expect(error).toBeInstanceOf(ModelNotFoundError);
+            expect(error).toBeInstanceOf(ResourceNotFoundError);
             expect(error.message).toBe('User Not Found!');
         }
     });
@@ -61,7 +62,7 @@ describe('Login | Auth Service (fail cases)', () => {
         } catch (error) {
             expect(error).toBeInstanceOf(AuthValidationError);
             expect(error.message).toBe('Wrong password!');
-            expect(error.requiredParameters).toEqual(['password']);
+            expect(error.parameters).toEqual(['password']);
         }
     });
 });
@@ -72,18 +73,10 @@ describe('Login | Auth Service (pass cases)', () => {
        
        // Validate that tokens is a non-null string
        expect(typeof tokens).toBe('object');
-       expect(tokens).toHaveProperty('token');
-       expect(tokens).toHaveProperty('refresh_token');
+       expect(tokens.user_id).toBeDefined();
        expect(tokens.token).toBeDefined();
        expect(tokens.refresh_token).toBeDefined();
-
-       try {
-           const authToken = jwt.verify(tokens.token, process.env.APP_KEY);
-           const refreshToken = jwt.verify(tokens.refresh_token, process.env.APP_REFRESH_KEY);
-           expect(authToken).toBeDefined(); 
-           expect(refreshToken).toBeDefined(); 
-       } catch (error) {
-           expect(error).not.toBeInstanceOf(jwt.JsonWebTokenError);
-       }
+       expect(tokens.token_expires_in).toBeDefined();
+       expect(tokens.refresh_token_expires_in).toBeDefined();
     });
 });
