@@ -1,4 +1,4 @@
-import CommandNotFoundError from "../app/exceptions/CommandNotFoundError.mjs";
+import ResourceNotFoundError from "../app/errors/ResourceNotFoundError.mjs";
 import * as generateAppKeyCommand from "./generateAppKey.mjs"; 
 
 /**
@@ -84,7 +84,7 @@ const callExistingCommand = () => {
      * Match command to execute
      */
     const commandToExecute = COMMANDS.find(command => command.config.syntax == commandName);
-    if (! commandToExecute) throw new CommandNotFoundError(commandName);
+    if (! commandToExecute) throw new ResourceNotFoundError(commandName);
     
     /**
      * Converts the --option=value to an object
