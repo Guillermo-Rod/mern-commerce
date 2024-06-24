@@ -2,7 +2,7 @@ export function getClientErrorStructure(overwrite) {
     const structure = {
         error_name: '',
         error_message: '',
-        errors: [],
+        errors: {},
         constructor_reference: 'constructor',
     };
 
