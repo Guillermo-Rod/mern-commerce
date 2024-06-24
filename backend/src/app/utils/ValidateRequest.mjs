@@ -43,7 +43,12 @@ export default {
         return new Promise((resolve, reject) => {
             validator.checkAsync(
                 async () => {
-                    const result = await onPasses();
+                    let result = null;
+
+                    if (onPasses) {
+                        result = await onPasses();
+                    }
+                    
                     resolve(result);
                 }, 
                 () => reject(new RequestValidationError(validator))
