@@ -1,7 +1,5 @@
-import ErrorHandler from "../../errors/ErrorHandler.mjs";
 import { signupUser, loginUser, refreshUserTokens } from "../../services/authService.mjs";
 import ResponseService from "../../utils/ResponseService.mjs";
-import mapValidationErrors from "../../utils/mapValidationErrors.mjs";
 
 export const signup = async (req, res, next) => {    
     try {
