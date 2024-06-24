@@ -6,6 +6,7 @@ import { getClientErrorStructure } from "../utils/clientErrorStructure.mjs";
 import jwt from "jsonwebtoken";
 import ResponseService from "../utils/ResponseService.mjs";
 import ForbiddenError from "./ForbiddenError.mjs";
+import RequestValidationError from "./RequestValidationError.mjs";
 
 class ErrorHandler {
 
@@ -25,10 +26,8 @@ class ErrorHandler {
 
         if (error instanceof ResourceNotFoundError) {
             response.notFound(error.message, error.toJson());
-        }else if (error instanceof AuthValidationError) {
-            response.badRequest(error.message, error.toJson());
-        }else if (error instanceof ParametersError) {
-            response.badRequest(error.message, error.toJson());
+        }else if (error instanceof AuthValidationError || error instanceof ParametersError || error instanceof RequestValidationError) {
+            response.badRequest(error.message, error.toJson());   
         }else if (error instanceof ModelAlreadyExistsError) {
             response.conflict(error.message, error.toJson());
         }else if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError || error instanceof jwt.NotBeforeError) {
