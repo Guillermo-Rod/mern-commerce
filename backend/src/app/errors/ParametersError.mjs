@@ -21,6 +21,16 @@ class ParametersError extends Error {
         return new ParametersError(`Invalid ${parameter} format!`, [parameter], ParametersError.INVALID_FORMAT_PARAMETER);
     }
 
+    excludeExisting(exclude) {
+        for (const key in exclude) {
+            if (exclude[key]) {
+                this.parameters = this.parameters.filter(paramName => paramName != key);
+            }
+        }
+
+        return this;
+    }
+
     toJson() {
         return buildJsonClientError(this);
     }
