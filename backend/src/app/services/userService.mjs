@@ -1,7 +1,6 @@
-import ModelAlreadyExistsError from "../errors/ModelAlreadyExistsError.mjs";
 import ResourceNotFoundError from "../errors/ResourceNotFoundError.mjs";
-import ParametersError from "../errors/ParametersError.mjs";
 import User from "../models/User.mjs";
+import validateRequest from "../utils/ValidateRequest.mjs";
 
 /**
  * Store User in Database
@@ -10,23 +9,27 @@ import User from "../models/User.mjs";
  * @return user Object
  */
 export async function createUser ({name, last_name, phone, email, password}) {
+    await validateRequest.validateAsync({
+        request: {name, last_name, phone, email, password},
+        rules: {
+            name: 'required',
+            last_name: 'required',
+            phone: 'phone:nullable',
+            email: ['required', 'email', { unique: [User, 'email'] }],
+            password: 'required'
+        }
+    });
     
-    const userExists = await User.findOne({ email });
-
-    if (userExists) {
-        throw new ModelAlreadyExistsError('User');
-    }
-
-    const user = new User({name, last_name, phone, email, password});
-    
+    const user = new User({name, last_name, phone, email, password});  
     await user.save();
-
     return user;
 }
 
 export async function getUser (userId) {
 
-    if (! userId) throw ParametersError.missingRequired('userId');
+    validateRequest.validate({user_id: userId}, {
+        user_id: 'required',
+    });
 
     const user = await User.findOne({_id: userId});
 
