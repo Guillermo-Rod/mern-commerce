@@ -1,5 +1,6 @@
 import ResourceNotFoundError from "../app/errors/ResourceNotFoundError.mjs";
 import * as generateAppKeyCommand from "./generateAppKey.mjs"; 
+import * as insertRolesAndPermissions from "./insertRolesAndPermissions.mjs"; 
 
 /**
  * How to find options
@@ -29,6 +30,7 @@ const RESERVED_OPTIONS = {
  */
 const COMMANDS = [
     generateAppKeyCommand,
+    insertRolesAndPermissions
 ];
 
 /**
@@ -58,7 +60,7 @@ const callHelp = () => {
     console.log();
     console.log('-> Welcome to call application commands!');
     console.log();
-    console.log('-> Just type in your command line: node ./src/commands/call.mjs command_syntax --options-of-command -print');
+    console.log('-> Just type in your command line: npm run command command_syntax --options-of-command -print');
     console.log('-> Use -print to show output in console.');
     console.log();
     const information = [];

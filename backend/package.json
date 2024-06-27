@@ -7,7 +7,7 @@
     "test": "cross-env APP_IS_TESTING=true node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "node ./src/server.mjs",
     "start:dev": "nodemon ./src/server.mjs",
-    "call": "node ./src/commands/call.mjs"
+    "command": "node ./src/commands/call.mjs"
   },
   "keywords": [],
   "author": "",
