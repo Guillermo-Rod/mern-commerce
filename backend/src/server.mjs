@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import 'module-alias/register';
 import express from "express";
 import morgan from "morgan";
 import webRoutes from "./routes/web.mjs";
@@ -8,11 +7,13 @@ import corsConfig from "./app/config/cors.mjs";
 import { connectToDB } from "./app/config/database.mjs";
 import { getMiddlewares } from './app/config/middlewares.mjs';
 import ErrorHandler from './app/errors/ErrorHandler.mjs';
+import { connectToRedis } from './app/utils/redisClient.mjs';
 
 // Connect to database
 // If true, use memory database
 if (process.env.APP_IS_TESTING === 'false') {
     await connectToDB();
+    await connectToRedis();
 }
 
 // Create app
