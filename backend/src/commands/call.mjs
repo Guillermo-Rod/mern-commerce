@@ -1,6 +1,7 @@
 import ResourceNotFoundError from "../app/errors/ResourceNotFoundError.mjs";
 import * as generateAppKeyCommand from "./generateAppKey.mjs"; 
 import * as insertRolesAndPermissions from "./insertRolesAndPermissions.mjs"; 
+import * as refreshRedisCache from "./refreshRedisCache.mjs"; 
 
 /**
  * How to find options
@@ -30,7 +31,8 @@ const RESERVED_OPTIONS = {
  */
 const COMMANDS = [
     generateAppKeyCommand,
-    insertRolesAndPermissions
+    insertRolesAndPermissions,
+    refreshRedisCache,
 ];
 
 /**
